@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>サクッとパズル｜2ピース</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;inset:0;background:#f5eddf;color:#4b2b19;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;touch-action:none}
+.app{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{text-align:center;padding:18px 10px 8px}
+h1{margin:0;font-size:34px;font-weight:900}
+.sub{margin-top:5px;font-size:17px;font-weight:700;color:#765d48}
+.boardWrap{display:flex;justify-content:center;padding-top:10px}
+.board{position:relative;width:min(86vw,430px);aspect-ratio:2/1;padding:14px;border-radius:24px;background:linear-gradient(145deg,#d4a064,#a86e3d);box-shadow:0 9px #704625,0 16px 28px #0003,inset 0 2px #f4d09b}
+.inner{position:absolute;inset:14px;border-radius:16px;background:#c5aa83;box-shadow:inset 0 0 13px #0006;overflow:hidden}
+.inner svg{width:100%;height:100%;opacity:.12}
+.centerHint{position:absolute;top:8%;bottom:8%;left:50%;border-left:2px dashed #fff8;opacity:.7}
+.tray{display:flex;justify-content:center;gap:18px;margin-top:32px}
+.piece{width:min(39vw,180px);aspect-ratio:1;touch-action:none;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 8px 5px #0005);z-index:5}
+.piece.drag{z-index:50;filter:drop-shadow(0 14px 9px #0006)}
+.piece.locked{filter:drop-shadow(0 2px 2px #0004)}
+.piece svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.status{text-align:center;font-weight:900;font-size:18px;margin:24px 0 12px;height:28px}
+.controls{display:flex;justify-content:center;gap:12px}
+button{border:0;border-radius:25px;padding:12px 24px;font-size:16px;font-weight:900;color:white;background:#2d88d8;box-shadow:0 5px #1d5d96}
+button.alt{background:#f2a21b;box-shadow:0 5px #bd7510}
+.note{text-align:center;color:#8a735e;font-size:13px;margin:8px 18px}
+@media(max-height:720px){
+ header{padding-top:6px}.board{width:min(82vw,400px)}.tray{margin-top:16px}.piece{width:min(35vw,150px)}.note{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>🧩 サクッとパズル</h1>
+  <div class="sub">まずは2ピースを「サクッ」とつなげよう</div>
+</header>
+
+<div class="boardWrap">
+  <div class="board" id="board">
+    <div class="inner">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1">
+    <stop stop-color="#55b8eb"/><stop offset="1" stop-color="#c8edfb"/>
+  </linearGradient>
+  <linearGradient id="grass" x2="0" y2="1">
+    <stop stop-color="#78ad52"/><stop offset="1" stop-color="#4b873e"/>
+  </linearGradient>
+</defs>
+<rect width="400" height="200" fill="url(#sky)"/>
+<path d="M0 112 Q80 82 160 112 T320 108 T400 112 V155 H0Z" fill="url(#grass)"/>
+<path d="M0 142 Q100 125 200 145 T400 138 V200 H0Z" fill="#58a348"/>
+<g stroke="#6a4d3a" stroke-width="6">
+  <path d="M0 155H400"/><path d="M0 175H400"/>
+</g>
+<g stroke="#e6d7bd" stroke-width="6">
+  <path d="M8 165H392"/><path d="M8 185H392"/>
+</g>
+<g fill="#8a684e">
+  <path d="M30 150v42M65 150v42M100 150v42M135 150v42M170 150v42M205 150v42M240 150v42M275 150v42M310 150v42M345 150v42M380 150v42"/>
+</g>
+<!-- simple shinkansen across both pieces -->
+<path d="M20 140 Q38 115 76 103 L168 78 Q190 72 218 78 L300 96 Q342 104 372 126 L392 142 V157 H20Z"
+      fill="#f8f7f1" stroke="#aab8c2" stroke-width="3"/>
+<path d="M20 140 Q42 115 76 103 L103 96 L78 126 Q58 145 20 149Z" fill="#edf2f5"/>
+<path d="M78 126 Q98 103 122 94 L173 80 L190 91 L154 112 L120 131Z" fill="#1766a7"/>
+<path d="M115 132 H388 V144 H105Z" fill="#1d70af"/>
+<g fill="#2878b1">
+  <rect x="215" y="94" width="22" height="16" rx="3"/>
+  <rect x="248" y="97" width="22" height="16" rx="3"/>
+  <rect x="281" y="100" width="22" height="16" rx="3"/>
+  <rect x="314" y="104" width="20" height="15" rx="3"/>
+</g>
+</div>
+    <div class="centerHint"></div>
+  </div>
+</div>
+
+<div class="tray">
+<div class="piece" id="piece0" data-i="0">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="clip0"><path d="M0 0 H200 V62 C183 62 172 72 172 90 C172 108 183 118 200 118 V200 H0 Z"/></clipPath></defs>
+    <g clip-path="url(#clip0)" transform="translate(0 0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1">
+    <stop stop-color="#55b8eb"/><stop offset="1" stop-color="#c8edfb"/>
+  </linearGradient>
+  <linearGradient id="grass" x2="0" y2="1">
+    <stop stop-color="#78ad52"/><stop offset="1" stop-color="#4b873e"/>
+  </linearGradient>
+</defs>
+<rect width="400" height="200" fill="url(#sky)"/>
+<path d="M0 112 Q80 82 160 112 T320 108 T400 112 V155 H0Z" fill="url(#grass)"/>
+<path d="M0 142 Q100 125 200 145 T400 138 V200 H0Z" fill="#58a348"/>
+<g stroke="#6a4d3a" stroke-width="6">
+  <path d="M0 155H400"/><path d="M0 175H400"/>
+</g>
+<g stroke="#e6d7bd" stroke-width="6">
+  <path d="M8 165H392"/><path d="M8 185H392"/>
+</g>
+<g fill="#8a684e">
+  <path d="M30 150v42M65 150v42M100 150v42M135 150v42M170 150v42M205 150v42M240 150v42M275 150v42M310 150v42M345 150v42M380 150v42"/>
+</g>
+<!-- simple shinkansen across both pieces -->
+<path d="M20 140 Q38 115 76 103 L168 78 Q190 72 218 78 L300 96 Q342 104 372 126 L392 142 V157 H20Z"
+      fill="#f8f7f1" stroke="#aab8c2" stroke-width="3"/>
+<path d="M20 140 Q42 115 76 103 L103 96 L78 126 Q58 145 20 149Z" fill="#edf2f5"/>
+<path d="M78 126 Q98 103 122 94 L173 80 L190 91 L154 112 L120 131Z" fill="#1766a7"/>
+<path d="M115 132 H388 V144 H105Z" fill="#1d70af"/>
+<g fill="#2878b1">
+  <rect x="215" y="94" width="22" height="16" rx="3"/>
+  <rect x="248" y="97" width="22" height="16" rx="3"/>
+  <rect x="281" y="100" width="22" height="16" rx="3"/>
+  <rect x="314" y="104" width="20" height="15" rx="3"/>
+</g>
+</g>
+    <path d="M0 0 H200 V62 C183 62 172 72 172 90 C172 108 183 118 200 118 V200 H0 Z" fill="none" stroke="#a66d3c" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M0 0 H200 V62 C183 62 172 72 172 90 C172 108 183 118 200 118 V200 H0 Z" fill="none" stroke="#f3d09a" stroke-width="2"/>
+  </svg>
+</div>
+
+<div class="piece" id="piece1" data-i="1">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs><clipPath id="clip1"><path d="M0 0 H200 V200 H0 V118 C17 118 28 108 28 90 C28 72 17 62 0 62 Z"/></clipPath></defs>
+    <g clip-path="url(#clip1)" transform="translate(-200 0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1">
+    <stop stop-color="#55b8eb"/><stop offset="1" stop-color="#c8edfb"/>
+  </linearGradient>
+  <linearGradient id="grass" x2="0" y2="1">
+    <stop stop-color="#78ad52"/><stop offset="1" stop-color="#4b873e"/>
+  </linearGradient>
+</defs>
+<rect width="400" height="200" fill="url(#sky)"/>
+<path d="M0 112 Q80 82 160 112 T320 108 T400 112 V155 H0Z" fill="url(#grass)"/>
+<path d="M0 142 Q100 125 200 145 T400 138 V200 H0Z" fill="#58a348"/>
+<g stroke="#6a4d3a" stroke-width="6">
+  <path d="M0 155H400"/><path d="M0 175H400"/>
+</g>
+<g stroke="#e6d7bd" stroke-width="6">
+  <path d="M8 165H392"/><path d="M8 185H392"/>
+</g>
+<g fill="#8a684e">
+  <path d="M30 150v42M65 150v42M100 150v42M135 150v42M170 150v42M205 150v42M240 150v42M275 150v42M310 150v42M345 150v42M380 150v42"/>
+</g>
+<!-- simple shinkansen across both pieces -->
+<path d="M20 140 Q38 115 76 103 L168 78 Q190 72 218 78 L300 96 Q342 104 372 126 L392 142 V157 H20Z"
+      fill="#f8f7f1" stroke="#aab8c2" stroke-width="3"/>
+<path d="M20 140 Q42 115 76 103 L103 96 L78 126 Q58 145 20 149Z" fill="#edf2f5"/>
+<path d="M78 126 Q98 103 122 94 L173 80 L190 91 L154 112 L120 131Z" fill="#1766a7"/>
+<path d="M115 132 H388 V144 H105Z" fill="#1d70af"/>
+<g fill="#2878b1">
+  <rect x="215" y="94" width="22" height="16" rx="3"/>
+  <rect x="248" y="97" width="22" height="16" rx="3"/>
+  <rect x="281" y="100" width="22" height="16" rx="3"/>
+  <rect x="314" y="104" width="20" height="15" rx="3"/>
+</g>
+</g>
+    <path d="M0 0 H200 V200 H0 V118 C17 118 28 108 28 90 C28 72 17 62 0 62 Z" fill="none" stroke="#a66d3c" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M0 0 H200 V200 H0 V118 C17 118 28 108 28 90 C28 72 17 62 0 62 Z" fill="none" stroke="#f3d09a" stroke-width="2"/>
+  </svg>
+</div>
+</div>
+
+<div class="status" id="status">2つのピースをつないでみよう</div>
+<div class="controls">
+  <button class="alt" id="reset">↻ リセット</button>
+  <button id="sound">🔊 音あり</button>
+</div>
+<div class="note">右のピースを左のピースの凹みに合わせると「サクッ！」</div>
+</div>
+
+<script>
+const board = document.getElementById('board');
+const statusEl = document.getElementById('status');
+let soundOn = true;
+const locked = [false, false];
+
+function snapSound() {
+  if (navigator.vibrate) navigator.vibrate([10,18,28]);
+  if (!soundOn) return;
+  try {
+    const A = window.AudioContext || window.webkitAudioContext;
+    if (!A) return;
+    const a = new A();
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(190, a.currentTime);
+    o.frequency.exponentialRampToValueAtTime(78, a.currentTime + .11);
+    g.gain.setValueAtTime(.001, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.13, a.currentTime + .01);
+    g.gain.exponentialRampToValueAtTime(.001, a.currentTime + .13);
+    o.connect(g).connect(a.destination);
+    o.start();
+    o.stop(a.currentTime + .14);
+  } catch (_) {}
+}
+
+document.querySelectorAll('.piece').forEach(piece => {
+  const i = Number(piece.dataset.i);
+  let dragging = false;
+  let startPointerX = 0, startPointerY = 0;
+  let startLeft = 0, startTop = 0;
+
+  piece.addEventListener('pointerdown', e => {
+    if (locked[i]) return;
+    e.preventDefault();
+    dragging = true;
+    startPointerX = e.clientX;
+    startPointerY = e.clientY;
+
+    const r = piece.getBoundingClientRect();
+    startLeft = r.left;
+    startTop = r.top;
+
+    piece.style.position = 'fixed';
+    piece.style.left = startLeft + 'px';
+    piece.style.top = startTop + 'px';
+    piece.style.margin = '0';
+    piece.style.zIndex = '100';
+    piece.classList.add('drag');
+
+    try { piece.setPointerCapture(e.pointerId); } catch (_) {}
+  }, {passive:false});
+
+  piece.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    e.preventDefault();
+
+    const x = startLeft + (e.clientX - startPointerX);
+    const y = startTop + (e.clientY - startPointerY);
+
+    piece.style.left = x + 'px';
+    piece.style.top = y + 'px';
+
+    const pr = piece.getBoundingClientRect();
+    const br = board.getBoundingClientRect();
+
+    // Each piece targets one half of the board.
+    const targetX = br.left + br.width * (i === 0 ? .25 : .75);
+    const targetY = br.top + br.height * .5;
+
+    const cx = pr.left + pr.width / 2;
+    const cy = pr.top + pr.height / 2;
+    const distance = Math.hypot(cx - targetX, cy - targetY);
+
+    if (distance < 90) {
+      statusEl.textContent = '……もう少し。';
+    }
+
+    if (distance < 32) {
+      piece.style.left = (targetX - pr.width / 2) + 'px';
+      piece.style.top = (targetY - pr.height / 2) + 'px';
+      piece.classList.remove('drag');
+      piece.classList.add('locked');
+      locked[i] = true;
+      dragging = false;
+      snapSound();
+
+      statusEl.textContent =
+        locked[0] && locked[1]
+          ? '🎉 連結成功！ サクッ！'
+          : '🧩 もう1ピースもつないでみよう';
+    }
+  }, {passive:false});
+
+  piece.addEventListener('pointerup', e => {
+    dragging = false;
+    piece.classList.remove('drag');
+    try { piece.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  piece.addEventListener('pointercancel', () => {
+    dragging = false;
+    piece.classList.remove('drag');
+  });
+});
+
+document.getElementById('reset').onclick = () => location.reload();
+
+document.getElementById('sound').onclick = e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? '🔊 音あり' : '🔇 音なし';
+};
+</script>
+</body>
+</html>
