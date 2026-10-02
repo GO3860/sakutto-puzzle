@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>サクッとパズル 2ピース 凸向き修正版</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f6eddd;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+body{touch-action:none}
+.wrap{position:fixed;inset:0;overflow:hidden;padding:34px 12px 18px}
+h1{text-align:center;margin:18px 0 5px;color:#4a2d1d;font-size:30px}
+p{text-align:center;color:#725d4c;margin:0 0 14px;font-size:17px}
+.board{position:relative;width:100%;height:60vh;min-height:450px}
+.piece{position:absolute;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;filter:drop-shadow(4px 7px 5px rgba(0,0,0,.28));z-index:2}
+.left{left:2%;top:27%;width:240px;height:180px}
+.right{left:55%;top:27%;width:180px;height:180px}
+.dragging{z-index:20;cursor:grabbing;filter:drop-shadow(8px 13px 10px rgba(0,0,0,.36))}
+svg{width:100%;height:100%;display:block;overflow:visible}
+.note{text-align:center;color:#725d4c;font-size:18px;line-height:1.5}
+#status{margin-top:8px;text-align:center;font-weight:700;color:#4a2d1d}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🧩 サクッとパズル</h1>
+<p>② 左の凸を「昔の厚紙パズル」らしい向きに修正</p>
+
+<div class="board">
+  <!-- 左：右辺から右へ半円状に張り出す、典型的な凸 -->
+  <div id="left" class="piece left">
+    <svg viewBox="0 0 240 180" aria-label="左ピース">
+      <defs>
+        <pattern id="imgL" patternUnits="userSpaceOnUse" width="360" height="180">
+          <image href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22360%22%20height%3D%22180%22%20viewBox%3D%220%200%20360%20180%22%3E%0A%3Crect%20width%3D%22360%22%20height%3D%22180%22%20fill%3D%22%2382c3ea%22/%3E%0A%3Cpath%20d%3D%22M0%20105%20Q70%2075%20145%20108%20T360%2092%20V180%20H0Z%22%20fill%3D%22%2375a84d%22/%3E%0A%3Cpath%20d%3D%22M0%20126%20Q95%20100%20190%20122%20T360%20112%20V180%20H0Z%22%20fill%3D%22%235f9341%22/%3E%0A%3Cpath%20d%3D%22M0%20145%20H360%20V180%20H0Z%22%20fill%3D%22%23d8c9aa%22/%3E%0A%3Cpath%20d%3D%22M0%20150%20H360%20M0%20164%20H360%20M0%20177%20H360%22%20stroke%3D%22%23f5f0df%22%20stroke-width%3D%224%22/%3E%0A%3Cpath%20d%3D%22M0%20154%20H360%20M0%20168%20H360%22%20stroke%3D%22%236d6d62%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M55%20118%20Q72%2090%20112%2076%20H255%20Q288%2077%20321%2096%20L344%20111%20Q350%20116%20344%20120%20H58Z%22%20fill%3D%22%23f7f7f2%22%20stroke%3D%22%238b9298%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M174%2078%20H255%20Q286%2080%20310%2094%20L278%2094%20L246%20105%20H156Z%22%20fill%3D%22%232d67a4%22/%3E%0A%3Cpath%20d%3D%22M156%20105%20L246%20105%20L223%20119%20H135Z%22%20fill%3D%22%23f7f7f2%22/%3E%0A%3Cpath%20d%3D%22M246%20105%20L278%2094%20L309%2095%20L284%20107Z%22%20fill%3D%22%232d67a4%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22121%22%20r%3D%226%22%20fill%3D%22%23333%22/%3E%3Ccircle%20cx%3D%22285%22%20cy%3D%22121%22%20r%3D%226%22%20fill%3D%22%23333%22/%3E%0A%3C/svg%3E" x="0" y="0" width="360" height="180"/>
+        </pattern>
+      </defs>
+      <path d="M2 2 H180 V30
+               C198 30 214 44 214 62
+               C214 80 198 94 180 94
+               V178 H2 Z"
+            fill="url(#imgL)" stroke="#8b633e" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M2 2 H180 V30
+               C198 30 214 44 214 62
+               C214 80 198 94 180 94
+               V178 H2 Z"
+            fill="none" stroke="#d5a66c" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- 右：左辺に同じ半円を受ける凹 -->
+  <div id="right" class="piece right">
+    <svg viewBox="0 0 180 180" aria-label="右ピース">
+      <defs>
+        <pattern id="imgR" patternUnits="userSpaceOnUse" width="360" height="180" patternTransform="translate(-180 0)">
+          <image href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22360%22%20height%3D%22180%22%20viewBox%3D%220%200%20360%20180%22%3E%0A%3Crect%20width%3D%22360%22%20height%3D%22180%22%20fill%3D%22%2382c3ea%22/%3E%0A%3Cpath%20d%3D%22M0%20105%20Q70%2075%20145%20108%20T360%2092%20V180%20H0Z%22%20fill%3D%22%2375a84d%22/%3E%0A%3Cpath%20d%3D%22M0%20126%20Q95%20100%20190%20122%20T360%20112%20V180%20H0Z%22%20fill%3D%22%235f9341%22/%3E%0A%3Cpath%20d%3D%22M0%20145%20H360%20V180%20H0Z%22%20fill%3D%22%23d8c9aa%22/%3E%0A%3Cpath%20d%3D%22M0%20150%20H360%20M0%20164%20H360%20M0%20177%20H360%22%20stroke%3D%22%23f5f0df%22%20stroke-width%3D%224%22/%3E%0A%3Cpath%20d%3D%22M0%20154%20H360%20M0%20168%20H360%22%20stroke%3D%22%236d6d62%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M55%20118%20Q72%2090%20112%2076%20H255%20Q288%2077%20321%2096%20L344%20111%20Q350%20116%20344%20120%20H58Z%22%20fill%3D%22%23f7f7f2%22%20stroke%3D%22%238b9298%22%20stroke-width%3D%222%22/%3E%0A%3Cpath%20d%3D%22M174%2078%20H255%20Q286%2080%20310%2094%20L278%2094%20L246%20105%20H156Z%22%20fill%3D%22%232d67a4%22/%3E%0A%3Cpath%20d%3D%22M156%20105%20L246%20105%20L223%20119%20H135Z%22%20fill%3D%22%23f7f7f2%22/%3E%0A%3Cpath%20d%3D%22M246%20105%20L278%2094%20L309%2095%20L284%20107Z%22%20fill%3D%22%232d67a4%22/%3E%0A%3Ccircle%20cx%3D%22120%22%20cy%3D%22121%22%20r%3D%226%22%20fill%3D%22%23333%22/%3E%3Ccircle%20cx%3D%22285%22%20cy%3D%22121%22%20r%3D%226%22%20fill%3D%22%23333%22/%3E%0A%3C/svg%3E" x="0" y="0" width="360" height="180"/>
+        </pattern>
+      </defs>
+      <path d="M2 2 H178 V178 H2 V94
+               C20 94 34 80 34 62
+               C34 44 20 30 2 30
+               V2 Z"
+            fill="url(#imgR)" stroke="#8b633e" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M2 2 H178 V178 H2 V94
+               C20 94 34 80 34 62
+               C34 44 20 30 2 30
+               V2 Z"
+            fill="none" stroke="#d5a66c" stroke-width="2"/>
+    </svg>
+  </div>
+</div>
+
+<div class="note">左の右辺から半円が「外へ」出ています。<br>右の左辺は、その凸を受ける半円の「凹」です。</div>
+<div id="status">指でつかんで動かせます</div>
+</div>
+
+<script>
+(function(){
+  const status = document.getElementById('status');
+
+  function drag(el){
+    let active = false;
+    let sx = 0, sy = 0, ox = 0, oy = 0;
+
+    el.addEventListener('pointerdown', function(e){
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+
+      sx = e.clientX;
+      sy = e.clientY;
+      ox = r.left;
+      oy = r.top;
+      active = true;
+
+      // ドラッグ中は画面基準にして、iPhoneでも確実に指についてくるようにする
+      el.style.position = 'fixed';
+      el.style.left = ox + 'px';
+      el.style.top = oy + 'px';
+      el.style.width = r.width + 'px';
+      el.style.height = r.height + 'px';
+
+      el.classList.add('dragging');
+      status.textContent = 'つかんでいます！';
+
+      try { el.setPointerCapture(e.pointerId); } catch(err) {}
+    });
+
+    el.addEventListener('pointermove', function(e){
+      if(!active) return;
+      e.preventDefault();
+
+      el.style.left = (ox + e.clientX - sx) + 'px';
+      el.style.top  = (oy + e.clientY - sy) + 'px';
+
+      status.textContent = '動いています！';
+    });
+
+    function end(e){
+      if(!active) return;
+      active = false;
+      try { el.releasePointerCapture(e.pointerId); } catch(err) {}
+      el.classList.remove('dragging');
+      status.textContent = '指を離しました';
+    }
+
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+  }
+
+  drag(document.getElementById('left'));
+  drag(document.getElementById('right'));
+})();
+</script>
+</body>
+</html>
