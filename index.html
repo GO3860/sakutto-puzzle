@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>サクッとパズル</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;inset:0;background:#f5eddf;color:#4b2b19;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;touch-action:none}
+.app{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{flex:0 0 auto;text-align:center;padding:12px 10px 4px}
+.title{font-size:clamp(28px,7vw,36px);font-weight:900;letter-spacing:.02em}
+.sub{font-size:clamp(14px,3.7vw,18px);font-weight:700;color:#765d48;margin-top:2px}
+.stage{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding-top:7px}
+.board{position:relative;width:min(76vw,360px);aspect-ratio:1;padding:14px;border-radius:25px;background:linear-gradient(145deg,#d4a064,#a96e3e);box-shadow:0 9px #704625,0 15px 25px #0003,inset 0 2px #f4d09b;flex:none}
+.frame{position:absolute;inset:14px;border-radius:17px;background:#8f603b;padding:8px;box-shadow:inset 0 0 13px #0006}
+.target{position:absolute;inset:8px;border-radius:12px;overflow:hidden;background:#c7ab84}
+.target svg{width:100%;height:100%;opacity:.17}
+.slots{position:absolute;inset:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;pointer-events:none}
+.slot{border:2px dashed #fff7;border-radius:10px}
+.tray{flex:0 0 auto;width:min(90vw,420px);display:grid;grid-template-columns:1fr 1fr;gap:7px 20px;margin:20px auto 0;justify-items:center}
+.piece{position:relative;width:min(40vw,170px);aspect-ratio:1;touch-action:none;user-select:none;filter:drop-shadow(0 6px 5px #0004);cursor:grab}
+.piece.drag{z-index:50;filter:drop-shadow(0 12px 9px #0005);cursor:grabbing}
+.piece.locked{opacity:.98;filter:drop-shadow(0 2px 2px #0003)}
+.piece svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+.bottom{flex:0 0 auto;padding:2px 10px max(5px,env(safe-area-inset-bottom));text-align:center}
+.status{height:27px;font-weight:900;font-size:16px}
+.controls{display:flex;justify-content:center;gap:10px}
+button{border:0;border-radius:24px;padding:10px 21px;font-size:16px;font-weight:900;color:#fff;background:#2d88d8;box-shadow:0 5px #1d5d96}
+button.alt{background:#f2a21b;box-shadow:0 5px #bd7510}
+.note{font-size:11px;color:#8a735e;margin:6px 0 0}
+@media(max-height:720px){.board{width:min(64vh,74vw)}.tray{margin-top:8px;gap:3px 14px}.piece{width:min(32vw,145px)}.note{display:none}header{padding-top:5px}}
+</style></head>
+<body>
+<div class="app">
+<header><div class="title">🧩 サクッとパズル</div><div class="sub">ピースを動かして絵を完成させよう</div></header>
+<div class="stage">
+ <div class="board" id="board">
+  <div class="frame"><div class="target">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#55b9ee"/><stop offset="1" stop-color="#c8edfb"/></linearGradient>
+  <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#72ad52"/><stop offset="1" stop-color="#4b8b3d"/></linearGradient>
+</defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<g fill="#fff" opacity=".95">
+  <path d="M42 86c-18 0-21-23-4-28 6-15 30-14 35 2 19-3 24 26 5 26z"/>
+  <path d="M292 70c-14 0-17-18-3-22 5-12 23-11 27 1 15-2 19 21 4 21z"/>
+</g>
+<path d="M0 220 Q80 180 160 218 T320 210 T400 218 V305 H0Z" fill="url(#hill)"/>
+<path d="M0 270 Q100 238 200 270 T400 260 V400 H0Z" fill="#58a348"/>
+<g stroke="#76533d" stroke-width="7"><path d="M0 316H400"/><path d="M0 338H400"/></g>
+<g stroke="#e5d7be" stroke-width="7"><path d="M10 326H390"/><path d="M10 348H390"/></g>
+<g fill="#8b6a51"><path d="M25 310v42M60 310v42M95 310v42M130 310v42M165 310v42M200 310v42M235 310v42M270 310v42M305 310v42M340 310v42M375 310v42"/></g>
+<path d="M18 300 Q40 275 84 258 L190 223 Q216 214 250 223 L330 247 Q358 256 380 277 L395 293 V322 H18Z" fill="#f8f7f1" stroke="#a9b7c0" stroke-width="3"/>
+<path d="M18 300 Q38 275 84 258 L110 247 L82 286 Q61 307 18 311Z" fill="#edf2f5"/>
+<path d="M82 286 Q100 260 128 246 L191 226 L210 239 L165 264 L129 288Z" fill="#1766a7"/>
+<path d="M125 288H389V301H113Z" fill="#1c70af"/>
+<g fill="#2878b1"><rect x="225" y="244" width="25" height="19" rx="4"/><rect x="263" y="246" width="25" height="19" rx="4"/><rect x="301" y="249" width="25" height="18" rx="4"/><rect x="339" y="254" width="22" height="17" rx="4"/></g>
+<path d="M18 322H395" stroke="#69777f" stroke-width="6"/>
+<path d="M0 360 Q100 345 200 360 T400 354 V400 H0Z" fill="#438e3e"/>
+</div></div>
+ </div>
+</div>
+<div class="tray" id="tray">
+    <div class="piece" data-i="0">
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="pc0"><path d="M0 0H160V58 C160 72 150 80 138 80 C126 80 116 72 116 58 C116 46 124 38 136 38 C148 38 156 46 160 58 V160 H104 C92 160 84 152 84 140 C84 128 92 120 104 120 C116 120 124 128 124 140 C124 152 116 160 104 160 H0Z"/></clipPath></defs>
+        <g clip-path="url(#pc0)" transform="translate(0.0 0.0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#55b9ee"/><stop offset="1" stop-color="#c8edfb"/></linearGradient>
+  <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#72ad52"/><stop offset="1" stop-color="#4b8b3d"/></linearGradient>
+</defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<g fill="#fff" opacity=".95">
+  <path d="M42 86c-18 0-21-23-4-28 6-15 30-14 35 2 19-3 24 26 5 26z"/>
+  <path d="M292 70c-14 0-17-18-3-22 5-12 23-11 27 1 15-2 19 21 4 21z"/>
+</g>
+<path d="M0 220 Q80 180 160 218 T320 210 T400 218 V305 H0Z" fill="url(#hill)"/>
+<path d="M0 270 Q100 238 200 270 T400 260 V400 H0Z" fill="#58a348"/>
+<g stroke="#76533d" stroke-width="7"><path d="M0 316H400"/><path d="M0 338H400"/></g>
+<g stroke="#e5d7be" stroke-width="7"><path d="M10 326H390"/><path d="M10 348H390"/></g>
+<g fill="#8b6a51"><path d="M25 310v42M60 310v42M95 310v42M130 310v42M165 310v42M200 310v42M235 310v42M270 310v42M305 310v42M340 310v42M375 310v42"/></g>
+<path d="M18 300 Q40 275 84 258 L190 223 Q216 214 250 223 L330 247 Q358 256 380 277 L395 293 V322 H18Z" fill="#f8f7f1" stroke="#a9b7c0" stroke-width="3"/>
+<path d="M18 300 Q38 275 84 258 L110 247 L82 286 Q61 307 18 311Z" fill="#edf2f5"/>
+<path d="M82 286 Q100 260 128 246 L191 226 L210 239 L165 264 L129 288Z" fill="#1766a7"/>
+<path d="M125 288H389V301H113Z" fill="#1c70af"/>
+<g fill="#2878b1"><rect x="225" y="244" width="25" height="19" rx="4"/><rect x="263" y="246" width="25" height="19" rx="4"/><rect x="301" y="249" width="25" height="18" rx="4"/><rect x="339" y="254" width="22" height="17" rx="4"/></g>
+<path d="M18 322H395" stroke="#69777f" stroke-width="6"/>
+<path d="M0 360 Q100 345 200 360 T400 354 V400 H0Z" fill="#438e3e"/>
+</g>
+        <path d="M0 0H160V58 C160 72 150 80 138 80 C126 80 116 72 116 58 C116 46 124 38 136 38 C148 38 156 46 160 58 V160 H104 C92 160 84 152 84 140 C84 128 92 120 104 120 C116 120 124 128 124 140 C124 152 116 160 104 160 H0Z" fill="none" stroke="#a96e3b" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M0 0H160V58 C160 72 150 80 138 80 C126 80 116 72 116 58 C116 46 124 38 136 38 C148 38 156 46 160 58 V160 H104 C92 160 84 152 84 140 C84 128 92 120 104 120 C116 120 124 128 124 140 C124 152 116 160 104 160 H0Z" fill="none" stroke="#f4d39b" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="piece" data-i="1">
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="pc1"><path d="M0 0H160V160 H56 C44 160 36 152 36 140 C36 128 44 120 56 120 C68 120 76 128 76 140 C76 152 68 160 56 160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z"/></clipPath></defs>
+        <g clip-path="url(#pc1)" transform="translate(-160.0 0.0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#55b9ee"/><stop offset="1" stop-color="#c8edfb"/></linearGradient>
+  <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#72ad52"/><stop offset="1" stop-color="#4b8b3d"/></linearGradient>
+</defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<g fill="#fff" opacity=".95">
+  <path d="M42 86c-18 0-21-23-4-28 6-15 30-14 35 2 19-3 24 26 5 26z"/>
+  <path d="M292 70c-14 0-17-18-3-22 5-12 23-11 27 1 15-2 19 21 4 21z"/>
+</g>
+<path d="M0 220 Q80 180 160 218 T320 210 T400 218 V305 H0Z" fill="url(#hill)"/>
+<path d="M0 270 Q100 238 200 270 T400 260 V400 H0Z" fill="#58a348"/>
+<g stroke="#76533d" stroke-width="7"><path d="M0 316H400"/><path d="M0 338H400"/></g>
+<g stroke="#e5d7be" stroke-width="7"><path d="M10 326H390"/><path d="M10 348H390"/></g>
+<g fill="#8b6a51"><path d="M25 310v42M60 310v42M95 310v42M130 310v42M165 310v42M200 310v42M235 310v42M270 310v42M305 310v42M340 310v42M375 310v42"/></g>
+<path d="M18 300 Q40 275 84 258 L190 223 Q216 214 250 223 L330 247 Q358 256 380 277 L395 293 V322 H18Z" fill="#f8f7f1" stroke="#a9b7c0" stroke-width="3"/>
+<path d="M18 300 Q38 275 84 258 L110 247 L82 286 Q61 307 18 311Z" fill="#edf2f5"/>
+<path d="M82 286 Q100 260 128 246 L191 226 L210 239 L165 264 L129 288Z" fill="#1766a7"/>
+<path d="M125 288H389V301H113Z" fill="#1c70af"/>
+<g fill="#2878b1"><rect x="225" y="244" width="25" height="19" rx="4"/><rect x="263" y="246" width="25" height="19" rx="4"/><rect x="301" y="249" width="25" height="18" rx="4"/><rect x="339" y="254" width="22" height="17" rx="4"/></g>
+<path d="M18 322H395" stroke="#69777f" stroke-width="6"/>
+<path d="M0 360 Q100 345 200 360 T400 354 V400 H0Z" fill="#438e3e"/>
+</g>
+        <path d="M0 0H160V160 H56 C44 160 36 152 36 140 C36 128 44 120 56 120 C68 120 76 128 76 140 C76 152 68 160 56 160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z" fill="none" stroke="#a96e3b" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M0 0H160V160 H56 C44 160 36 152 36 140 C36 128 44 120 56 120 C68 120 76 128 76 140 C76 152 68 160 56 160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z" fill="none" stroke="#f4d39b" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="piece" data-i="2">
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="pc2"><path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V58 C160 46 152 38 140 38 C128 38 120 46 120 58 C120 70 128 78 140 78 C152 78 160 70 160 58 V160 H0Z"/></clipPath></defs>
+        <g clip-path="url(#pc2)" transform="translate(0.0 -160.0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#55b9ee"/><stop offset="1" stop-color="#c8edfb"/></linearGradient>
+  <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#72ad52"/><stop offset="1" stop-color="#4b8b3d"/></linearGradient>
+</defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<g fill="#fff" opacity=".95">
+  <path d="M42 86c-18 0-21-23-4-28 6-15 30-14 35 2 19-3 24 26 5 26z"/>
+  <path d="M292 70c-14 0-17-18-3-22 5-12 23-11 27 1 15-2 19 21 4 21z"/>
+</g>
+<path d="M0 220 Q80 180 160 218 T320 210 T400 218 V305 H0Z" fill="url(#hill)"/>
+<path d="M0 270 Q100 238 200 270 T400 260 V400 H0Z" fill="#58a348"/>
+<g stroke="#76533d" stroke-width="7"><path d="M0 316H400"/><path d="M0 338H400"/></g>
+<g stroke="#e5d7be" stroke-width="7"><path d="M10 326H390"/><path d="M10 348H390"/></g>
+<g fill="#8b6a51"><path d="M25 310v42M60 310v42M95 310v42M130 310v42M165 310v42M200 310v42M235 310v42M270 310v42M305 310v42M340 310v42M375 310v42"/></g>
+<path d="M18 300 Q40 275 84 258 L190 223 Q216 214 250 223 L330 247 Q358 256 380 277 L395 293 V322 H18Z" fill="#f8f7f1" stroke="#a9b7c0" stroke-width="3"/>
+<path d="M18 300 Q38 275 84 258 L110 247 L82 286 Q61 307 18 311Z" fill="#edf2f5"/>
+<path d="M82 286 Q100 260 128 246 L191 226 L210 239 L165 264 L129 288Z" fill="#1766a7"/>
+<path d="M125 288H389V301H113Z" fill="#1c70af"/>
+<g fill="#2878b1"><rect x="225" y="244" width="25" height="19" rx="4"/><rect x="263" y="246" width="25" height="19" rx="4"/><rect x="301" y="249" width="25" height="18" rx="4"/><rect x="339" y="254" width="22" height="17" rx="4"/></g>
+<path d="M18 322H395" stroke="#69777f" stroke-width="6"/>
+<path d="M0 360 Q100 345 200 360 T400 354 V400 H0Z" fill="#438e3e"/>
+</g>
+        <path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V58 C160 46 152 38 140 38 C128 38 120 46 120 58 C120 70 128 78 140 78 C152 78 160 70 160 58 V160 H0Z" fill="none" stroke="#a96e3b" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V58 C160 46 152 38 140 38 C128 38 120 46 120 58 C120 70 128 78 140 78 C152 78 160 70 160 58 V160 H0Z" fill="none" stroke="#f4d39b" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="piece" data-i="3">
+      <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+        <defs><clipPath id="pc3"><path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z"/></clipPath></defs>
+        <g clip-path="url(#pc3)" transform="translate(-160.0 -160.0)">
+<defs>
+  <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#55b9ee"/><stop offset="1" stop-color="#c8edfb"/></linearGradient>
+  <linearGradient id="hill" x2="0" y2="1"><stop stop-color="#72ad52"/><stop offset="1" stop-color="#4b8b3d"/></linearGradient>
+</defs>
+<rect width="400" height="400" fill="url(#sky)"/>
+<g fill="#fff" opacity=".95">
+  <path d="M42 86c-18 0-21-23-4-28 6-15 30-14 35 2 19-3 24 26 5 26z"/>
+  <path d="M292 70c-14 0-17-18-3-22 5-12 23-11 27 1 15-2 19 21 4 21z"/>
+</g>
+<path d="M0 220 Q80 180 160 218 T320 210 T400 218 V305 H0Z" fill="url(#hill)"/>
+<path d="M0 270 Q100 238 200 270 T400 260 V400 H0Z" fill="#58a348"/>
+<g stroke="#76533d" stroke-width="7"><path d="M0 316H400"/><path d="M0 338H400"/></g>
+<g stroke="#e5d7be" stroke-width="7"><path d="M10 326H390"/><path d="M10 348H390"/></g>
+<g fill="#8b6a51"><path d="M25 310v42M60 310v42M95 310v42M130 310v42M165 310v42M200 310v42M235 310v42M270 310v42M305 310v42M340 310v42M375 310v42"/></g>
+<path d="M18 300 Q40 275 84 258 L190 223 Q216 214 250 223 L330 247 Q358 256 380 277 L395 293 V322 H18Z" fill="#f8f7f1" stroke="#a9b7c0" stroke-width="3"/>
+<path d="M18 300 Q38 275 84 258 L110 247 L82 286 Q61 307 18 311Z" fill="#edf2f5"/>
+<path d="M82 286 Q100 260 128 246 L191 226 L210 239 L165 264 L129 288Z" fill="#1766a7"/>
+<path d="M125 288H389V301H113Z" fill="#1c70af"/>
+<g fill="#2878b1"><rect x="225" y="244" width="25" height="19" rx="4"/><rect x="263" y="246" width="25" height="19" rx="4"/><rect x="301" y="249" width="25" height="18" rx="4"/><rect x="339" y="254" width="22" height="17" rx="4"/></g>
+<path d="M18 322H395" stroke="#69777f" stroke-width="6"/>
+<path d="M0 360 Q100 345 200 360 T400 354 V400 H0Z" fill="#438e3e"/>
+</g>
+        <path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z" fill="none" stroke="#a96e3b" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M0 0H58 C70 0 78 8 78 20 C78 32 70 40 58 40 C46 40 38 32 38 20 C38 8 46 0 58 0 H160 V160 H0 V102 C0 90 8 82 20 82 C32 82 40 90 40 102 C40 114 32 122 20 122 C8 122 0 114 0 102Z" fill="none" stroke="#f4d39b" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div></div>
+<div class="bottom">
+ <div class="status" id="status">ピースをつかんで動かしてみよう</div>
+ <div class="controls"><button class="alt" id="reset">↻ リセット</button><button id="sound">🔊 音あり</button></div>
+ <div class="note">画面は固定。ピースだけを動かせます。近づくと少し重くなり「サクッ」とはまります。</div>
+</div>
+</div>
+<script>
+const board=document.getElementById('board'),tray=document.getElementById('tray'),statusEl=document.getElementById('status');
+let soundOn=true,placed=0;
+const targets=[0,1,2,3];
+
+function snapSound(){
+ if(navigator.vibrate) navigator.vibrate([10,18,28]);
+ if(!soundOn)return;
+ try{
+  const A=window.AudioContext||window.webkitAudioContext;if(!A)return;
+  const a=new A(),o=a.createOscillator(),g=a.createGain();
+  o.type='triangle';o.frequency.setValueAtTime(190,a.currentTime);o.frequency.exponentialRampToValueAtTime(78,a.currentTime+.11);
+  g.gain.setValueAtTime(.001,a.currentTime);g.gain.exponentialRampToValueAtTime(.13,a.currentTime+.01);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.13);
+  o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+.14);
+ }catch(e){}
+}
+
+function attach(p){
+ let sx=0,sy=0,baseX=0,baseY=0;
+ p.addEventListener('pointerdown',e=>{
+  if(p.classList.contains('locked'))return;
+  e.preventDefault();p.setPointerCapture(e.pointerId);p.classList.add('drag');
+  const r=p.getBoundingClientRect();sx=e.clientX;sy=e.clientY;baseX=r.left;baseY=r.top;
+ });
+ p.addEventListener('pointermove',e=>{
+  if(!p.classList.contains('drag'))return;e.preventDefault();
+  const br=board.getBoundingClientRect(),r=tray.getBoundingClientRect();
+  let x=baseX+(e.clientX-sx),y=baseY+(e.clientY-sy);
+  p.style.position='fixed';p.style.left=x+'px';p.style.top=y+'px';p.style.width=r.width>500?'160px':'38vw';p.style.zIndex=100;
+  const pr=p.getBoundingClientRect();
+  const i=Number(p.dataset.i), cell=br.width/2, targetX=br.left+cell*(i%2),targetY=br.top+cell*Math.floor(i/2);
+  const pcx=pr.left+pr.width/2,pcy=pr.top+pr.height/2;
+  const d=Math.hypot(pcx-targetX,pcy-targetY);
+  if(d<85)statusEl.textContent='……もう少し。';
+  if(d<28){place(p,targetX-pr.width/2,targetY-pr.height/2);}
+ });
+ p.addEventListener('pointerup',()=>p.classList.remove('drag'));
+ p.addEventListener('pointercancel',()=>p.classList.remove('drag'));
+}
+
+function place(p,left,top){
+ if(p.classList.contains('locked'))return;
+ p.style.left=left+'px';p.style.top=top+'px';p.classList.remove('drag');p.classList.add('locked');
+ p.style.pointerEvents='none';placed++;snapSound();statusEl.textContent=placed===4?'🎉 完成！ サクッ！':'🧩 サクッ！';
+}
+
+document.querySelectorAll('.piece').forEach(attach);
+document.getElementById('reset').onclick=()=>location.reload();
+document.getElementById('sound').onclick=e=>{soundOn=!soundOn;e.currentTarget.textContent=soundOn?'🔊 音あり':'🔇 音なし'};
+</script>
+</body></html>
